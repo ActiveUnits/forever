@@ -111,6 +111,32 @@ loader.on('load', function () {
           break;
           
         case 'stop':
+        
+          // interate all processes and stop them all once found
+          procs = forever.list();
+          if(procs != null) {
+            var prcStopped = false;
+            for(var i in procs)
+                if(procs[i].file == file) {
+                    file = i;
+                      prcStopped = true;
+                      
+                      // TODO refractor this duplicate code | see bellow
+                      var runner = forever.stop(parseInt(file), true);
+                      runner.on('stop', function (process) {
+                        sys.puts('Forever stopped process:');
+                        sys.puts(process);
+                      });
+                      runner.on('error', function (err) {
+                        sys.puts('Forever cannot find process with index: ' + file)
+                      })
+                }
+                
+            if(prcStopped)
+                return;
+          }
+          
+        
           if (!(/(\d+)/.test(file))) {
             sys.puts(file + ' is not a valid index for a forever process.');
             process.exit(0);
